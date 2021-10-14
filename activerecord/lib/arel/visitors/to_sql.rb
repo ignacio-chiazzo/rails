@@ -852,6 +852,8 @@ module Arel # :nodoc: all
             stmt.orders = []
             stmt.wheres = [Nodes::In.new(o.key, [build_subselect(o.key, o)])]
             stmt.relation = o.relation.left if has_join_sources?(o)
+            stmt.groups = o.groups if o.groups.present?
+            stmt.havings = o.havings if o.havings.present?
             stmt
           else
             o
@@ -866,6 +868,8 @@ module Arel # :nodoc: all
           core.froms       = o.relation
           core.wheres      = o.wheres
           core.projections = [key]
+          core.groups      = o.groups if o.groups.present?
+          core.havings     = o.havings if o.havings.present?
           stmt.limit       = o.limit
           stmt.offset      = o.offset
           stmt.orders      = o.orders
