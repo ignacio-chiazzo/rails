@@ -486,8 +486,8 @@ module ActiveRecord
       arel.source.left = table
 
       group_values_arel_columns = arel_columns(group_values.uniq)
-      stmt = arel.compile_update(values, group_values_arel_columns, having_clause.ast, table[primary_key])
-
+      having_clause_ast = having_clause.ast unless having_clause.empty?
+      stmt = arel.compile_update(values, table[primary_key], having_clause_ast, group_values_arel_columns)
       klass.connection.update(stmt, "#{klass} Update All").tap { reset }
     end
 
