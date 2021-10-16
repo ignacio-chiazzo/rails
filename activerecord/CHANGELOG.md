@@ -1,3 +1,24 @@
+*   Use subquery for UPDATE with GROUP_BY and HAVING clauses.
+
+    Prior to this change, updates with GROUP_BY and HAVING were being ignored, generating a SQL like this:
+    
+    ```sql
+    UPDATE "posts" SET "flagged" = ? WHERE "posts"."id" IN (
+        SELECT "posts"."id" FROM "posts" INNER JOIN "comments" ON "comments"."post_id" = "posts"."id"
+    )  [["flagged", "t"]]
+    ```
+
+    After this change, GROUP_BY and HAVING clauses are used as a subquery in updates, like this:
+    
+    ```sql
+    UPDATE "posts" SET "flagged" = ? WHERE "posts"."id" IN (
+        SELECT "posts"."id" FROM "posts" INNER JOIN "comments" ON "comments"."post_id" = "posts"."id" 
+        GROUP BY posts.id HAVING (count(comments.id) >= 2)
+    )  [["flagged", "t"]]
+    ```
+
+    *Ignacio Chiazzo Cardarello*
+
 *   Add support for FILTER clause (SQL:2003) to Arel.
 
     Currently supported by PostgreSQL 9.4+ and SQLite 3.30+.
